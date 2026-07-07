@@ -21,8 +21,15 @@
   .subtitle { font-size: 16px; font-weight: 600; color: var(--accent); margin: 0 0 16px; }
   .warn {
     background: var(--warn-bg); color: var(--warn-text); border-radius: 8px;
-    padding: 12px 16px; font-size: 14px; margin: 0 0 24px; font-weight: 500;
+    padding: 12px 16px; font-size: 14px; margin: 0 0 12px; font-weight: 500;
   }
+  .notice {
+    background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+    padding: 12px 16px; font-size: 13.5px; color: var(--muted); margin: 0 0 24px;
+  }
+  .notice ul { margin: 6px 0 0; padding-left: 18px; }
+  .notice li { margin: 3px 0; }
+  .notice b { color: var(--text); }
   label { display: block; font-size: 14px; color: var(--muted); margin-bottom: 6px; }
   input[type=text] {
     width: 100%; max-width: 340px; height: 40px; padding: 0 12px;
@@ -69,6 +76,16 @@
   .modal .go { border: 2px solid var(--accent); color: var(--accent); font-weight: 600; padding: 8px 18px; font-size: 14px; }
   .modal .go:hover { background: var(--accent-bg); }
 
+  /* closed screen */
+  .closed { display: none; text-align: center; padding: 60px 20px; }
+  .closed.show { display: block; }
+  .closed .lock {
+    width: 64px; height: 64px; border-radius: 50%; background: var(--danger-bg); color: var(--danger);
+    display: inline-flex; align-items: center; justify-content: center; font-size: 32px; margin-bottom: 20px;
+  }
+  .closed h2 { font-size: 24px; font-weight: 600; margin: 0 0 12px; }
+  .closed p { font-size: 15px; color: var(--muted); margin: 0 auto; max-width: 460px; }
+
   /* thank you screen */
   .thanks { display: none; text-align: center; padding: 60px 20px; }
   .thanks.show { display: block; }
@@ -89,6 +106,14 @@
     Please mark <u>every</u> time slot you can possibly attend. Selecting only a few slots may make your participation in the campaign uncertain.
   </div>
 
+  <div class="notice">
+    <ul>
+      <li><b>Deadline:</b> July 9 (Wed) 6:00 PM (KST) &mdash; the form closes automatically.</li>
+      <li><b>Results:</b> Your confirmed filming time will be sent individually by email on July 10 (Thu).</li>
+      <li>If you submit more than once, only your <b>most recent submission</b> will be used.</li>
+    </ul>
+  </div>
+
   <label for="name">TikTok ID</label>
   <input type="text" id="name" placeholder="@skykim" autocomplete="off" />
 
@@ -105,6 +130,12 @@
   <p class="final-warn">Note: once you submit, your selection cannot be changed.</p>
   <button class="submit" id="submit">Submit</button>
   <div class="msg" id="msg"></div>
+</div>
+
+<div class="closed" id="closed-view">
+  <div class="lock">&#128274;</div>
+  <h2>Sign-up is closed</h2>
+  <p>The submission deadline (July 9, 6:00 PM KST) has passed, so this form is no longer accepting responses. Confirmed filming times will be sent by email on July 10. Thank you!</p>
 </div>
 
 <div class="thanks" id="thanks-view">
@@ -129,6 +160,14 @@
 const SUPABASE_URL = "https://yuzvezskfigktzvxxkhl.supabase.co";
 const SUPABASE_KEY = "sb_publishable_-sj-9lNR_HssZWIZCXdnDw_Xb3Zpxzc";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Hard deadline: 2026-07-09 18:00 KST (UTC+9)
+const DEADLINE = new Date("2026-07-09T18:00:00+09:00");
+function isClosed(){ return new Date() >= DEADLINE; }
+if (isClosed()) {
+  document.getElementById('form-view').style.display = 'none';
+  document.getElementById('closed-view').classList.add('show');
+}
 
 const dow = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const days = [];
@@ -205,56 +244,4 @@ table.addEventListener('touchmove', e => {
 }, {passive:false});
 document.addEventListener('touchend', () => { dragging = false; });
 
-document.getElementById('clear').onclick = () => {
-  sel.clear();
-  table.querySelectorAll('td.cell.on').forEach(td => td.classList.remove('on'));
-  refresh();
-};
-
-function showMsg(text){
-  const m = document.getElementById('msg');
-  m.className = 'msg err';
-  m.textContent = text;
-}
-
-const overlay = document.getElementById('overlay');
-
-document.getElementById('submit').onclick = () => {
-  const name = (document.getElementById('name').value || '').trim();
-  if (!name) { showMsg('Please enter your TikTok ID.'); return; }
-  if (sel.size === 0) { showMsg('Please select at least one available slot.'); return; }
-  document.getElementById('msg').className = 'msg';
-  overlay.classList.add('show');
-};
-
-document.getElementById('cancel').onclick = () => overlay.classList.remove('show');
-
-document.getElementById('confirm').onclick = async () => {
-  const name = (document.getElementById('name').value || '').trim();
-  const confirmBtn = document.getElementById('confirm');
-  confirmBtn.disabled = true; confirmBtn.textContent = 'Submitting...';
-
-  const submissionId = crypto.randomUUID();
-  const rows = [...sel].map(id => {
-    const [d, h] = id.split('|');
-    return { applicant_name: name, slot_date: d, slot_hour: parseInt(h), submission_id: submissionId };
-  });
-
-  const { error } = await sb.from('shoot_availability').insert(rows);
-
-  if (error) {
-    overlay.classList.remove('show');
-    confirmBtn.disabled = false; confirmBtn.textContent = 'Submit';
-    showMsg('Something went wrong. Please try again. (' + error.message + ')');
-  } else {
-    overlay.classList.remove('show');
-    document.getElementById('form-view').style.display = 'none';
-    document.getElementById('thanks-view').classList.add('show');
-    window.scrollTo(0, 0);
-  }
-};
-
-refresh();
-</script>
-</body>
-</html>
+document.getElem
