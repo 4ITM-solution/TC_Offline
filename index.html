@@ -161,9 +161,10 @@ const SUPABASE_URL = "https://yuzvezskfigktzvxxkhl.supabase.co";
 const SUPABASE_KEY = "sb_publishable_-sj-9lNR_HssZWIZCXdnDw_Xb3Zpxzc";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Hard deadline: 2026-07-10 12:00 (noon) KST (UTC+9)
+// Deadline disabled — sign-up stays open indefinitely.
+// (DEADLINE kept for reference; isClosed() is forced false so the form never auto-closes.)
 const DEADLINE = new Date("2026-07-10T12:00:00+09:00");
-function isClosed(){ return new Date() >= DEADLINE; }
+function isClosed(){ return false; }
 if (isClosed()) {
   document.getElementById('form-view').style.display = 'none';
   document.getElementById('closed-view').classList.add('show');
