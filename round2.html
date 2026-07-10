@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Oganacell Pharmacy Visit Campaign — Round 2</title>
+<style>
+  :root {
+    --bg: #faf9f5; --card: #ffffff; --line: #e5e3da; --line2: #d3d1c7;
+    --text: #2c2c2a; --muted: #6b6a63; --accent: #d85a30; --accent-bg: #faece7;
+    --sel: #d85a30; --danger: #a32d2d; --danger-bg: #fcebeb; --ok: #1d9e75; --warn-bg: #faeeda; --warn-text: #854f0b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif;
+    background: var(--bg); color: var(--text); margin: 0; padding: 24px 16px;
+    line-height: 1.6; -webkit-user-select: none; user-select: none;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 22px; font-weight: 600; margin: 0 0 2px; }
+  .subtitle { font-size: 16px; font-weight: 600; color: var(--accent); margin: 0 0 16px; }
+  .warn {
+    background: var(--warn-bg); color: var(--warn-text); border-radius: 8px;
+    padding: 12px 16px; font-size: 14px; margin: 0 0 12px; font-weight: 500;
+  }
+  .notice {
+    background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+    padding: 12px 16px; font-size: 13.5px; color: var(--muted); margin: 0 0 24px;
+  }
+  .notice ul { margin: 6px 0 0; padding-left: 18px; }
+  .notice li { margin: 3px 0; }
+  .notice b { color: var(--text); }
+  label { display: block; font-size: 14px; color: var(--muted); margin-bottom: 6px; }
+  input[type=text] {
+    width: 100%; max-width: 340px; height: 40px; padding: 0 12px;
+    border: 1px solid var(--line2); border-radius: 8px; font-size: 15px; background: var(--card);
+  }
+  input[type=text]:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
+  .bar { display: flex; align-items: center; gap: 10px; margin: 20px 0 12px; flex-wrap: wrap; }
+  .hint { font-size: 13px; color: var(--muted); }
+  .count { font-size: 13px; font-weight: 600; color: var(--accent); }
+  .legend { display: flex; align-items: center; gap: 16px; margin: 0 0 10px; font-size: 12.5px; color: var(--muted); flex-wrap: wrap; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 16px; height: 16px; border-radius: 4px; border: 1px solid var(--line2); display: inline-block; }
+  .swatch.free { background: var(--bg); }
+  .swatch.taken { background: repeating-linear-gradient(45deg, var(--line2) 0 3px, var(--card) 3px 6px); }
+  button {
+    font-family: inherit; border: 1px solid var(--line2); background: var(--card); color: var(--text);
+    border-radius: 8px; padding: 6px 12px; font-size: 13px; cursor: pointer;
+  }
+  button:hover { background: var(--bg); }
+  button:active { transform: scale(0.98); }
+  .grid-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; padding: 8px; background: var(--card); }
+  table { border-collapse: separate; border-spacing: 3px; font-size: 12px; }
+  th { padding: 4px 6px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+  th.we { color: var(--danger); }
+  td.h { color: var(--muted); white-space: nowrap; padding: 4px 8px; position: sticky; left: 0; background: var(--card); }
+  th.sticky { position: sticky; left: 0; background: var(--card); }
+  td.cell { width: 34px; height: 30px; border-radius: 6px; background: var(--bg); border: 1px solid var(--line); cursor: pointer; }
+  td.cell.on { background: var(--sel); border-color: var(--sel); }
+  td.cell-blocked {
+    width: 34px; height: 30px; border-radius: 6px; border: 1px solid var(--line2); cursor: not-allowed;
+    background: repeating-linear-gradient(45deg, var(--line2) 0 3px, var(--card) 3px 6px);
+  }
+  .final-warn { margin: 20px 0 0; font-size: 13px; color: var(--danger); font-weight: 500; }
+  .submit {
+    margin-top: 10px; border: 2px solid var(--accent); color: var(--accent);
+    font-weight: 600; padding: 10px 22px; font-size: 15px; border-radius: 8px; background: var(--card);
+  }
+  .submit:hover { background: var(--accent-bg); }
+  .submit:disabled { opacity: 0.5; cursor: default; }
+  .msg { margin-top: 16px; padding: 12px 16px; border-radius: 8px; font-size: 14px; display: none; }
+  .msg.err { background: var(--danger-bg); color: var(--danger); display: block; }
+
+  /* confirm modal */
+  .overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+    align-items: center; justify-content: center; padding: 20px; z-index: 10;
+  }
+  .overlay.show { display: flex; }
+  .modal { background: var(--card); border-radius: 12px; padding: 24px; max-width: 420px; width: 100%; }
+  .modal h3 { margin: 0 0 10px; font-size: 18px; font-weight: 600; }
+  .modal p { margin: 0 0 20px; font-size: 14px; color: var(--muted); }
+  .modal .row { display: flex; gap: 10px; justify-content: flex-end; }
+  .modal .go { border: 2px solid var(--accent); color: var(--accent); font-weight: 600; padding: 8px 18px; font-size: 14px; }
+  .modal .go:hover { background: var(--accent-bg); }
+
+  /* thank you screen */
+  .thanks { display: none; text-align: center; padding: 60px 20px; }
+  .thanks.show { display: block; }
+  .thanks .check {
+    width: 64px; height: 64px; border-radius: 50%; background: #e1f5ee; color: #0f6e56;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 34px; margin-bottom: 20px;
+  }
+  .thanks h2 { font-size: 24px; font-weight: 600; margin: 0 0 12px; }
+  .thanks p { font-size: 15px; color: var(--muted); margin: 0 auto; max-width: 460px; }
+</style>
+</head>
+<body>
+<div class="wrap" id="form-view">
+  <h1>Oganacell Pharmacy Visit Campaign — Round 2 (July 13 ~ July 26)</h1>
+  <p class="subtitle">Shoot Availability Sign-up</p>
+
+  <div class="warn">
+    Please mark <u>every</u> time slot you can possibly attend. Selecting only a few slots may make your participation in the campaign uncertain.
+  </div>
+
+  <div class="notice">
+    <ul>
+      <li><b>Round 2:</b> Slots already booked in Round 1 are shown <b>hatched (striped)</b> and cannot be selected. Please choose only from the open slots.</li>
+      <li><b>Please note:</b> Do not select time slots that have already passed &mdash; choose only upcoming times you can attend.</li>
+      <li><b>Results:</b> Your confirmed filming time will be sent to you individually by email.</li>
+      <li>If you submit more than once, only your <b>most recent submission</b> will be used.</li>
+    </ul>
+  </div>
+
+  <label for="name">TikTok ID</label>
+  <input type="text" id="name" placeholder="@skykim" autocomplete="off" />
+
+  <div class="bar">
+    <span class="hint">Click or drag across the slots you're free.</span>
+    <span class="count" id="count">0 slots selected</span>
+    <button id="clear" style="margin-left:auto;">Clear all</button>
+  </div>
+
+  <div class="legend">
+    <span><i class="swatch free"></i> Open &mdash; selectable</span>
+    <span><i class="swatch taken"></i> Already booked (Round 1)</span>
+  </div>
+
+  <div class="grid-wrap">
+    <table id="grid"></table>
+  </div>
+
+  <p class="final-warn">Note: once you submit, your selection cannot be changed.</p>
+  <button class="submit" id="submit">Submit</button>
+  <div class="msg" id="msg"></div>
+</div>
+
+<div class="thanks" id="thanks-view">
+  <div class="check">&#10003;</div>
+  <h2>Thank you!</h2>
+  <p>Your availability has been submitted successfully. Your confirmed filming time will be sent to you by email. Please keep an eye on your inbox.</p>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3>Submit your availability?</h3>
+    <p>Once submitted, your selection cannot be changed. Please make sure you've marked every slot you can attend.</p>
+    <div class="row">
+      <button id="cancel">Go back</button>
+      <button class="go" id="confirm">Submit</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL = "https://yuzvezskfigktzvxxkhl.supabase.co";
+const SUPABASE_KEY = "sb_publishable_-sj-9lNR_HssZWIZCXdnDw_Xb3Zpxzc";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Round 2 form. Slots occupied by the confirmed Round 1 assignment (27) are blocked.
+const BLOCKED = new Set([
+  "2026-07-13|11","2026-07-13|12","2026-07-13|14","2026-07-13|15","2026-07-13|16","2026-07-13|17","2026-07-13|19",
+  "2026-07-14|11","2026-07-14|12","2026-07-14|15","2026-07-14|16","2026-07-14|17",
+  "2026-07-15|13","2026-07-15|17",
+  "2026-07-16|12","2026-07-16|18",
+  "2026-07-17|11","2026-07-17|13","2026-07-17|14","2026-07-17|15","2026-07-17|16",
+  "2026-07-18|11","2026-07-18|13","2026-07-18|14",
+  "2026-07-21|12",
+  "2026-07-25|11",
+  "2026-07-26|15"
+]);
+
+const dow = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const days = [];
+const start = new Date(2026, 6, 13);
+for (let i=0;i<14;i++){
+  const d = new Date(start); d.setDate(start.getDate()+i);
+  const iso = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  days.push({ iso, label:`${d.getMonth()+1}/${d.getDate()}`, dow:dow[d.getDay()], we:(d.getDay()===0||d.getDay()===6) });
+}
+const hours = [11,12,13,14,15,16,17,18,19];
+const sel = new Set();
+
+const table = document.getElementById('grid');
+let html = '<thead><tr><th class="sticky">Time</th>';
+days.forEach(d => { html += `<th class="${d.we?'we':''}">${d.label}<br><span style="font-weight:400;font-size:11px;">${d.dow}</span></th>`; });
+html += '</tr></thead><tbody>';
+hours.forEach(h => {
+  html += `<tr><td class="h">${h}:00</td>`;
+  days.forEach(d => {
+    const id = `${d.iso}|${h}`;
+    if (BLOCKED.has(id)) html += `<td class="cell-blocked" title="Already booked in Round 1"></td>`;
+    else html += `<td class="cell" data-id="${id}"></td>`;
+  });
+  html += '</tr>';
+});
+html += '</tbody>';
+table.innerHTML = html;
+
+const countEl = document.getElementById('count');
+function refresh(){ countEl.textContent = sel.size + (sel.size===1?' slot selected':' slots selected'); }
+
+function setCell(td, on){
+  const id = td.dataset.id;
+  if (on) { sel.add(id); td.classList.add('on'); }
+  else { sel.delete(id); td.classList.remove('on'); }
+}
+
+let dragging = false;
+let dragMode = true;
+
+function cellFromPoint(x, y){
+  const el = document.elementFromPoint(x, y);
+  return el && el.classList && el.classList.contains('cell') ? el : null;
+}
+
+table.addEventListener('mousedown', e => {
+  const td = e.target.closest('td.cell'); if(!td) return;
+  e.preventDefault();
+  dragging = true;
+  dragMode = !sel.has(td.dataset.id);
+  setCell(td, dragMode);
+  refresh();
+});
+table.addEventListener('mouseover', e => {
+  if(!dragging) return;
+  const td = e.target.closest('td.cell'); if(!td) return;
+  setCell(td, dragMode);
+  refresh();
+});
+document.addEventListener('mouseup', () => { dragging = false; });
+
+table.addEventListener('touchstart', e => {
+  const t = e.touches[0];
+  const td = cellFromPoint(t.clientX, t.clientY); if(!td) return;
+  e.preventDefault();
+  dragging = true;
+  dragMode = !sel.has(td.dataset.id);
+  setCell(td, dragMode);
+  refresh();
+}, {passive:false});
+table.addEventListener('touchmove', e => {
+  if(!dragging) return;
+  const t = e.touches[0];
+  const td = cellFromPoint(t.clientX, t.clientY); if(!td) return;
+  e.preventDefault();
+  setCell(td, dragMode);
+  refresh();
+}, {passive:false});
+document.addEventListener('touchend', () => { dragging = false; });
+
+document.getElementById('clear').onclick = () => {
+  sel.clear();
+  table.querySelectorAll('td.cell.on').forEach(td => td.classList.remove('on'));
+  refresh();
+};
+
+function showMsg(text){
+  const m = document.getElementById('msg');
+  m.className = 'msg err';
+  m.textContent = text;
+}
+
+const overlay = document.getElementById('overlay');
+
+document.getElementById('submit').onclick = () => {
+  const name = (document.getElementById('name').value || '').trim();
+  if (!name) { showMsg('Please enter your TikTok ID.'); return; }
+  if (sel.size === 0) { showMsg('Please select at least one available slot.'); return; }
+  document.getElementById('msg').className = 'msg';
+  overlay.classList.add('show');
+};
+
+document.getElementById('cancel').onclick = () => overlay.classList.remove('show');
+
+document.getElementById('confirm').onclick = async () => {
+  const name = (document.getElementById('name').value || '').trim();
+  const confirmBtn = document.getElementById('confirm');
+  confirmBtn.disabled = true; confirmBtn.textContent = 'Submitting...';
+
+  const submissionId = crypto.randomUUID();
+  const rows = [...sel].map(id => {
+    const [d, h] = id.split('|');
+    return { applicant_name: name, slot_date: d, slot_hour: parseInt(h), submission_id: submissionId, round: 2 };
+  });
+
+  // Guard: never allow a Round-1 booked slot through, even if the DOM was tampered with.
+  if (rows.some(r => BLOCKED.has(`${r.slot_date}|${r.slot_hour}`))) {
+    overlay.classList.remove('show');
+    confirmBtn.disabled = false; confirmBtn.textContent = 'Submit';
+    showMsg('One of the selected slots is already booked. Please refresh and try again.');
+    return;
+  }
+
+  const { error } = await sb.from('shoot_availability').insert(rows);
+
+  if (error) {
+    overlay.classList.remove('show');
+    confirmBtn.disabled = false; confirmBtn.textContent = 'Submit';
+    showMsg('Something went wrong. Please try again. (' + error.message + ')');
+  } else {
+    overlay.classList.remove('show');
+    document.getElementById('form-view').style.display = 'none';
+    document.getElementById('thanks-view').classList.add('show');
+    window.scrollTo(0, 0);
+  }
+};
+
+refresh();
+</script>
+</body>
+</html>

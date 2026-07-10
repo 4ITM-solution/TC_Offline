@@ -1,0 +1,5 @@
+# Local deploy secrets — never commit the GitHub token
+.deploy_config
+
+# Local exports containing applicant handles — keep off the public site
+*.csv
