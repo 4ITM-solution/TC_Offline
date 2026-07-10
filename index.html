@@ -134,8 +134,8 @@
 
 <div class="closed" id="closed-view">
   <div class="lock">&#128274;</div>
-  <h2>Sign-up is closed</h2>
-  <p>The submission deadline (July 10, 12:00 noon KST) has passed, so this form is no longer accepting responses. Confirmed filming times will be sent by email on July 10. Thank you!</p>
+  <h2>Round 1 sign-up is closed</h2>
+  <p>Thank you! Round 1 recruitment has now closed and is no longer accepting responses. A Round 2 form covering the remaining open time slots will be shared separately &mdash; please watch for it. Confirmed filming times will be sent individually by email.</p>
 </div>
 
 <div class="thanks" id="thanks-view">
@@ -161,10 +161,8 @@ const SUPABASE_URL = "https://yuzvezskfigktzvxxkhl.supabase.co";
 const SUPABASE_KEY = "sb_publishable_-sj-9lNR_HssZWIZCXdnDw_Xb3Zpxzc";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Deadline disabled — sign-up stays open indefinitely.
-// (DEADLINE kept for reference; isClosed() is forced false so the form never auto-closes.)
-const DEADLINE = new Date("2026-07-10T12:00:00+09:00");
-function isClosed(){ return false; }
+// Round 1 recruitment is closed. A separate Round 2 form handles remaining slots.
+function isClosed(){ return true; }
 if (isClosed()) {
   document.getElementById('form-view').style.display = 'none';
   document.getElementById('closed-view').classList.add('show');
