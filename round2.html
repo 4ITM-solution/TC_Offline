@@ -98,7 +98,7 @@
 </head>
 <body>
 <div class="wrap" id="form-view">
-  <h1>Oganacell Pharmacy Visit Campaign — Round 2 (July 13 ~ July 26)</h1>
+  <h1>Oganacell Pharmacy Visit Campaign — Round 2 (July 14 ~ July 26)</h1>
   <p class="subtitle">Shoot Availability Sign-up</p>
 
   <div class="warn">
@@ -162,7 +162,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Round 2 form. Slots occupied by the confirmed Round 1 assignment (27) are blocked.
 const BLOCKED = new Set([
-  "2026-07-13|11","2026-07-13|12","2026-07-13|14","2026-07-13|15","2026-07-13|16","2026-07-13|17","2026-07-13|19",
+  // July 13 is not offered in Round 2 (column removed), so its 7 Round-1 bookings are omitted here.
   "2026-07-14|11","2026-07-14|12","2026-07-14|15","2026-07-14|16","2026-07-14|17",
   "2026-07-15|13","2026-07-15|17",
   "2026-07-16|12","2026-07-16|18",
@@ -175,8 +175,8 @@ const BLOCKED = new Set([
 
 const dow = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const days = [];
-const start = new Date(2026, 6, 13);
-for (let i=0;i<14;i++){
+const start = new Date(2026, 6, 14);   // July 13 closed for Round 2; period starts July 14
+for (let i=0;i<13;i++){
   const d = new Date(start); d.setDate(start.getDate()+i);
   const iso = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   days.push({ iso, label:`${d.getMonth()+1}/${d.getDate()}`, dow:dow[d.getDay()], we:(d.getDay()===0||d.getDay()===6) });
