@@ -3,3 +3,4 @@
 
 # Local exports containing applicant handles — keep off the public site
 *.csv
+*.xlsx
