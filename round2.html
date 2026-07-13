@@ -107,7 +107,7 @@
 
   <div class="notice">
     <ul>
-      <li><b>Round 2:</b> Slots already booked in Round 1 are shown <b>hatched (striped)</b> and cannot be selected. Please choose only from the open slots.</li>
+      <li><b>Round 2:</b> <b>Hatched (striped)</b> slots are unavailable and cannot be selected. Please choose only from the open slots.</li>
       <li><b>Please note:</b> Do not select time slots that have already passed &mdash; choose only upcoming times you can attend.</li>
       <li><b>Results:</b> Your confirmed filming time will be sent to you individually by email.</li>
       <li>If you submit more than once, only your <b>most recent submission</b> will be used.</li>
@@ -125,7 +125,7 @@
 
   <div class="legend">
     <span><i class="swatch free"></i> Open &mdash; selectable</span>
-    <span><i class="swatch taken"></i> Already booked (Round 1)</span>
+    <span><i class="swatch taken"></i> Unavailable</span>
   </div>
 
   <div class="grid-wrap">
@@ -170,7 +170,9 @@ const BLOCKED = new Set([
   "2026-07-18|11","2026-07-18|13","2026-07-18|14",
   "2026-07-21|12",
   "2026-07-25|11",
-  "2026-07-26|15"
+  "2026-07-26|15",
+  // Additionally closed for Round 2 (operational):
+  "2026-07-18|15","2026-07-18|18","2026-07-22|14"
 ]);
 
 const dow = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
