@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Oganacell Pharmacy Visit Campaign — Round 3</title>
+<title>Oganacell Pharmacy Visit Campaign — Round 4</title>
 <style>
   :root {
     --bg: #faf9f5; --card: #ffffff; --line: #e5e3da; --line2: #d3d1c7;
@@ -108,7 +108,7 @@
 </head>
 <body>
 <div class="wrap" id="form-view">
-  <h1>Oganacell Pharmacy Visit Campaign — Round 3 (July 15 ~ July 26)</h1>
+  <h1>Oganacell Pharmacy Visit Campaign — Round 4 (July 17 ~ July 26)</h1>
   <p class="subtitle">Shoot Availability Sign-up</p>
 
   <div class="warn">
@@ -117,7 +117,7 @@
 
   <div class="notice">
     <ul>
-      <li><b>Round 3:</b> <b>Hatched (striped)</b> slots are unavailable and cannot be selected. Please choose only from the open slots.</li>
+      <li><b>Round 4:</b> <b>Hatched (striped)</b> slots are unavailable and cannot be selected. Please choose only from the open slots.</li>
       <li><b>Please note:</b> Do not select time slots that have already passed &mdash; choose only upcoming times you can attend.</li>
       <li><b>Results:</b> Your confirmed filming time will be sent to you individually by email.</li>
       <li>If you submit more than once, only your <b>most recent submission</b> will be used.</li>
@@ -149,8 +149,8 @@
 
 <div class="closed" id="closed-view">
   <div class="lock">&#128274;</div>
-  <h2>Round 3 sign-up is closed</h2>
-  <p>Thank you! Round 3 recruitment has now closed and is no longer accepting responses. Confirmed filming times will be sent to you individually by email &mdash; please keep an eye on your inbox.</p>
+  <h2>Round 4 sign-up is closed</h2>
+  <p>Thank you! Round 4 recruitment has now closed and is no longer accepting responses. Confirmed filming times will be sent to you individually by email &mdash; please keep an eye on your inbox.</p>
 </div>
 
 <div class="thanks" id="thanks-view">
@@ -176,31 +176,34 @@ const SUPABASE_URL = "https://yuzvezskfigktzvxxkhl.supabase.co";
 const SUPABASE_KEY = "sb_publishable_-sj-9lNR_HssZWIZCXdnDw_Xb3Zpxzc";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Round 3 recruitment is closed. Any remaining intake is handled by a separate Round 4 form.
-function isClosed(){ return true; }
+// Round 4 is a spare/backup intake form. It is currently OPEN.
+// To close it later: change the return value below to true and re-deploy.
+function isClosed(){ return false; }
 if (isClosed()) {
   document.getElementById('form-view').style.display = 'none';
   document.getElementById('closed-view').classList.add('show');
 }
 
-// Round 3 form. Blocked = all slots occupied through Round 1+2 (on/after July 15) plus
-// the operationally-closed slots. July 13 & 14 are excluded by the date range (starts July 15).
+// Round 4 form. Period starts July 17 (July 13-16 excluded by the date range).
+// BLOCKED = every slot already occupied through Round 1+2+3 (on/after July 17)
+// plus the operationally-closed slots (2026-07-18 15:00, 2026-07-18 18:00, 2026-07-22 14:00,
+// which are already included in the list below).
 const BLOCKED = new Set([
-  "2026-07-15|13","2026-07-15|14","2026-07-15|15","2026-07-15|16","2026-07-15|17",
-  "2026-07-16|12","2026-07-16|13","2026-07-16|18","2026-07-16|19",
-  "2026-07-17|11","2026-07-17|13","2026-07-17|14","2026-07-17|15","2026-07-17|16","2026-07-17|17",
-  "2026-07-18|11","2026-07-18|13","2026-07-18|14","2026-07-18|15","2026-07-18|17","2026-07-18|18",
-  "2026-07-21|12",
-  "2026-07-22|14",
-  "2026-07-23|14",
-  "2026-07-25|11",
-  "2026-07-26|14","2026-07-26|15"
+  "2026-07-17|11","2026-07-17|12","2026-07-17|13","2026-07-17|14","2026-07-17|15","2026-07-17|16","2026-07-17|17","2026-07-17|18","2026-07-17|19",
+  "2026-07-18|11","2026-07-18|13","2026-07-18|14","2026-07-18|15","2026-07-18|16","2026-07-18|17","2026-07-18|18",
+  "2026-07-19|13",
+  "2026-07-20|14",
+  "2026-07-21|12","2026-07-21|14","2026-07-21|15",
+  "2026-07-22|14","2026-07-22|17",
+  "2026-07-23|14","2026-07-23|18",
+  "2026-07-25|11","2026-07-25|16",
+  "2026-07-26|11","2026-07-26|14","2026-07-26|15"
 ]);
 
 const dow = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const days = [];
-const start = new Date(2026, 6, 15);   // Round 3 period starts July 15 (13 & 14 closed)
-for (let i=0;i<12;i++){
+const start = new Date(2026, 6, 17);   // Round 4 period starts July 17 (13-16 closed)
+for (let i=0;i<10;i++){
   const d = new Date(start); d.setDate(start.getDate()+i);
   const iso = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   days.push({ iso, label:`${d.getMonth()+1}/${d.getDate()}`, dow:dow[d.getDay()], we:(d.getDay()===0||d.getDay()===6) });
@@ -314,7 +317,7 @@ document.getElementById('confirm').onclick = async () => {
   const submissionId = crypto.randomUUID();
   const rows = [...sel].map(id => {
     const [d, h] = id.split('|');
-    return { applicant_name: name, slot_date: d, slot_hour: parseInt(h), submission_id: submissionId, round: 3 };
+    return { applicant_name: name, slot_date: d, slot_hour: parseInt(h), submission_id: submissionId, round: 4 };
   });
 
   // Guard: never allow an unavailable slot through, even if the DOM was tampered with.

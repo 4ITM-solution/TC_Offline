@@ -1,6 +1,7 @@
 # Local deploy secrets — never commit the GitHub token
 .deploy_config
 
-# Local exports containing applicant handles — keep off the public site
+# Local exports/notes containing applicant handles — keep off the public site
 *.csv
 *.xlsx
+HANDOFF.md
